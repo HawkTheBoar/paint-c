@@ -1,0 +1,36 @@
+[
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wall",
+      "-Wextra",
+      "-std=c99",
+      "-O2",
+      "-I.",
+      "-o",
+      "game",
+      "main.c"
+    ],
+    "directory": "/home/mistr/code/paint-c",
+    "file": "/home/mistr/code/paint-c/main.c",
+    "output": "/home/mistr/code/paint-c/game"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wall",
+      "-Wextra",
+      "-std=c99",
+      "-O2",
+      "-I.",
+      "-o",
+      "game",
+      "algorithms/algorithms.c"
+    ],
+    "directory": "/home/mistr/code/paint-c",
+    "file": "/home/mistr/code/paint-c/algorithms/algorithms.c",
+    "output": "/home/mistr/code/paint-c/game"
+  }
+]

@@ -1,0 +1,7 @@
+#ifndef DEFINITIONS_H
+#define DEFINITIONS_H
+#define SCREEN_HEIGHT 800
+#define SCREEN_WIDTH 800
+#define SCREEN_TITLE "Paint C"
+#define BG_COLOR WHITE
+#endif // !DEFINITIONS_H

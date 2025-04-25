@@ -1,4 +1,5 @@
 #include "algorithms.h"
+#include "pixelBuffer/pixelBuffer.h"
 #include <raylib.h>
 #include <stdlib.h>
 /**
@@ -12,7 +13,9 @@
  * @param draw_pixel Function pointer to plot a pixel at (x,y) with color c
  */
 void drawCircle(const Vector2 *center, int radius, const Color *c,
-                drawPixel_func draw_pixel) {
+                drawPixel_func draw_pixel, void *ctx) {
+  if (!isPointValid(*center))
+    return;
   int x = 0;
   int y = radius;
   int d = 1 - radius; // Decision parameter
@@ -20,14 +23,14 @@ void drawCircle(const Vector2 *center, int radius, const Color *c,
   // Plot the initial points in all octants
   while (x <= y) {
     // Plot points in all 8 octants simultaneously
-    draw_pixel(center->x + x, center->y + y, *c); // Octant 1
-    draw_pixel(center->x + y, center->y + x, *c); // Octant 2
-    draw_pixel(center->x - x, center->y + y, *c); // Octant 4
-    draw_pixel(center->x - y, center->y + x, *c); // Octant 3
-    draw_pixel(center->x + x, center->y - y, *c); // Octant 8
-    draw_pixel(center->x + y, center->y - x, *c); // Octant 7
-    draw_pixel(center->x - x, center->y - y, *c); // Octant 5
-    draw_pixel(center->x - y, center->y - x, *c); // Octant 6
+    draw_pixel(center->x + x, center->y + y, *c, ctx); // Octant 1
+    draw_pixel(center->x + y, center->y + x, *c, ctx); // Octant 2
+    draw_pixel(center->x - x, center->y + y, *c, ctx); // Octant 4
+    draw_pixel(center->x - y, center->y + x, *c, ctx); // Octant 3
+    draw_pixel(center->x + x, center->y - y, *c, ctx); // Octant 8
+    draw_pixel(center->x + y, center->y - x, *c, ctx); // Octant 7
+    draw_pixel(center->x - x, center->y - y, *c, ctx); // Octant 5
+    draw_pixel(center->x - y, center->y - x, *c, ctx); // Octant 6
 
     // Update the decision parameter
     if (d < 0) {
@@ -42,7 +45,7 @@ void drawCircle(const Vector2 *center, int radius, const Color *c,
   }
 }
 void drawLine(const Vector2 *point, const Vector2 *point2, const Color *c,
-              drawPixel_func draw_pixel) {
+              drawPixel_func draw_pixel, void *ctx) {
   // Extract coordinates for readability
   int x1 = point->x;
   int y1 = point->y;
@@ -64,7 +67,7 @@ void drawLine(const Vector2 *point, const Vector2 *point2, const Color *c,
   // Main loop - continues until we reach the end point
   while (1) {
     // Plot the current pixel
-    draw_pixel(x1, y1, *c);
+    draw_pixel(x1, y1, *c, ctx);
 
     // Check if we've reached the end point
     if (x1 == x2 && y1 == y2)
@@ -87,17 +90,17 @@ void drawLine(const Vector2 *point, const Vector2 *point2, const Color *c,
   }
 }
 void drawPolygon(const Vector2 *points, size_t count, const Color *c,
-                 drawPixel_func drawPixel) {
-  if (count < 1)
+                 drawPixel_func drawPixel, void *ctx) {
+  if (count < 1 || !arePointsValid(points, count))
     return;
   for (size_t i = 1; i < count; i++) {
-    drawLine(points + i, points + i - 1, c, drawPixel);
+    drawLine(points + i, points + i - 1, c, drawPixel, ctx);
   }
-  drawLine(&points[0], &points[count - 1], c, drawPixel);
+  drawLine(&points[0], &points[count - 1], c, drawPixel, ctx);
 }
 void drawSquare(const Vector2 *start, const Vector2 *end, const Color *c,
-                drawPixel_func drawPixel) {
+                drawPixel_func drawPixel, void *ctx) {
   Vector2 point1 = {start->x, end->y};
   Vector2 point3 = {end->x, start->y};
-  drawPolygon((Vector2[]){point1, *end, point3, *start}, 4, c, drawPixel);
+  drawPolygon((Vector2[]){point1, *end, point3, *start}, 4, c, drawPixel, ctx);
 }

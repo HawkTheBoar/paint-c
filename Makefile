@@ -1,7 +1,7 @@
 # Simple Raylib Makefil# Simple Raylib Makefile with Root Header Inclusion
 
 # 1. List your main source files here (space separated)
-SRC = main.c algorithms/algorithms.c
+SRC = main.c algorithms/algorithms.c pixelBuffer/pixelBuffer.c input-handling/handlers.c input-handling/handle-input.c utils/utils.c
 
 # 2. Compiler settings
 CC = gcc
