@@ -6,9 +6,9 @@
 typedef void (*key_handler_func)(int key, pixelBuffer *buffer,
                                  EditorData *editordata);
 typedef void (*mouse_handler_func)(int mouseButton, int mouseEvent,
-                                   pixelBuffer *buffer);
+                                   pixelBuffer *buffer, EditorData *editordata);
 typedef struct {
-  key_handler_func key_hanlder;
+  key_handler_func key_handler;
   mouse_handler_func mouse_handler;
 } handler;
 
@@ -23,24 +23,28 @@ handler handlers[] = {
 };
 void handle_input(pixelBuffer *pixelBuffer, EditorData *editordata) {
   int key = GetKeyPressed();
-  key_handler = handlers[editordata->currentInputHandler].key_hanlder;
+  key_handler = handlers[editordata->currentInputHandler].key_handler;
   mouse_handler = handlers[editordata->currentInputHandler].mouse_handler;
   // key overrides for all input
+  if (key == KEY_C) {
+    pixelBuffer_clear(pixelBuffer);
+    return;
+  }
   // Handle key input
   key_handler(key, pixelBuffer, editordata);
 
   // This is so that i can use mouse events as switch state
   if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-    mouse_handler(MOUSE_LEFT_BUTTON, MOUSE_PRESS, pixelBuffer);
+    mouse_handler(MOUSE_LEFT_BUTTON, MOUSE_PRESS, pixelBuffer, editordata);
   } else if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON)) {
-    mouse_handler(MOUSE_RIGHT_BUTTON, MOUSE_PRESS, pixelBuffer);
+    mouse_handler(MOUSE_RIGHT_BUTTON, MOUSE_PRESS, pixelBuffer, editordata);
   } else if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
-    mouse_handler(MOUSE_LEFT_BUTTON, MOUSE_RELEASE, pixelBuffer);
+    mouse_handler(MOUSE_LEFT_BUTTON, MOUSE_RELEASE, pixelBuffer, editordata);
   } else if (IsMouseButtonReleased(MOUSE_RIGHT_BUTTON)) {
-    mouse_handler(MOUSE_RIGHT_BUTTON, MOUSE_RELEASE, pixelBuffer);
+    mouse_handler(MOUSE_RIGHT_BUTTON, MOUSE_RELEASE, pixelBuffer, editordata);
   } else if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
-    mouse_handler(MOUSE_LEFT_BUTTON, MOUSE_DRAG, pixelBuffer);
+    mouse_handler(MOUSE_LEFT_BUTTON, MOUSE_DRAG, pixelBuffer, editordata);
   } else if (IsMouseButtonDown(MOUSE_RIGHT_BUTTON)) {
-    mouse_handler(MOUSE_RIGHT_BUTTON, MOUSE_DRAG, pixelBuffer);
+    mouse_handler(MOUSE_RIGHT_BUTTON, MOUSE_DRAG, pixelBuffer, editordata);
   }
 }

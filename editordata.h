@@ -4,5 +4,6 @@
 typedef struct {
   Color editorColor;
   int currentInputHandler;
+  Vector2 clampedMousePos;
 } EditorData;
 #endif // !EDITORDATA_H

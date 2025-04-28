@@ -24,6 +24,11 @@ void pixelBuffer_destroy(pixelBuffer *buffer) {
   free(buffer->mainBuffer);
   free(buffer);
 }
+void pixelBuffer_clear(pixelBuffer *buffer) {
+  for (int x = 0; x < SCREEN_WIDTH; x++)
+    for (int y = 0; y < SCREEN_HEIGHT; y++)
+      pixelBuffer_setPixel(x, y, (Color){0, 0, 0, 0}, buffer);
+}
 pixelBuffer *pixelBuffer_create() {
   pixelBuffer *buffer = malloc(sizeof(pixelBuffer));
   buffer->mainBuffer = malloc(SCREEN_HEIGHT * SCREEN_WIDTH * sizeof(Color));

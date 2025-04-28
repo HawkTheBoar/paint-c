@@ -12,4 +12,5 @@ int arePointsValid(const Vector2 *points, size_t count);
 void pixelBuffer_setPixel(int x, int y, Color c, void *ctx);
 void pixelBuffer_destroy(pixelBuffer *buffer);
 pixelBuffer *pixelBuffer_create();
+void pixelBuffer_clear(pixelBuffer *buffer);
 #endif // !PIXELBUFFER_H

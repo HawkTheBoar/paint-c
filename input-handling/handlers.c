@@ -39,16 +39,17 @@ void line_key_handler(int key, pixelBuffer *buffer, EditorData *editordata) {
     break;
   }
 }
-void line_mouse_handler(int mouseButton, int mouseEvent, pixelBuffer *buffer) {
+void line_mouse_handler(int mouseButton, int mouseEvent, pixelBuffer *buffer,
+                        EditorData *editordata) {
   switch (mouseButton) {
   case MOUSE_LEFT_BUTTON:
     switch (mouseEvent) {
     case MOUSE_PRESS:
-      point1 = GetMousePosition();
+      point1 = editordata->clampedMousePos;
       break;
 
     case MOUSE_DRAG:
-      point2 = GetMousePosition();
+      point2 = editordata->clampedMousePos;
       ClearBackground(WHITE);
       drawLine(&point1, &point2, editColor, drawpixel, NULL);
       break;
@@ -63,7 +64,7 @@ void line_mouse_handler(int mouseButton, int mouseEvent, pixelBuffer *buffer) {
   case MOUSE_RIGHT_BUTTON:
     switch (mouseEvent) {
     case MOUSE_PRESS:;
-      Vector2 mousePos = GetMousePosition();
+      Vector2 mousePos = editordata->clampedMousePos;
       float distance = getVectorDistance(mousePos, point1);
       float distance2 = getVectorDistance(mousePos, point2);
       if (fmin(distance, distance2) < editToleration) {
@@ -75,7 +76,7 @@ void line_mouse_handler(int mouseButton, int mouseEvent, pixelBuffer *buffer) {
 
     case MOUSE_DRAG:
       if (editPoint != NULL) {
-        *editPoint = GetMousePosition();
+        *editPoint = editordata->clampedMousePos;
         ClearBackground(WHITE);
         drawLine(&point1, &point2, editColor, drawpixel, NULL);
       }
@@ -111,17 +112,17 @@ void circle_key_handler(int key, pixelBuffer *buffer, EditorData *editordata) {
     break;
   }
 }
-void circle_mouse_handler(int mouseButton, int mouseEvent,
-                          pixelBuffer *buffer) {
+void circle_mouse_handler(int mouseButton, int mouseEvent, pixelBuffer *buffer,
+                          EditorData *editordata) {
   switch (mouseButton) {
   case MOUSE_LEFT_BUTTON:
     switch (mouseEvent) {
     case MOUSE_PRESS:
-      point1 = GetMousePosition();
+      point1 = editordata->clampedMousePos;
       break;
 
     case MOUSE_DRAG:
-      point2 = GetMousePosition();
+      point2 = editordata->clampedMousePos;
       radius = getVectorDistance(point1, point2);
       ClearBackground(WHITE);
       drawCircle(&point1, radius, editColor, drawpixel, NULL);
@@ -137,7 +138,7 @@ void circle_mouse_handler(int mouseButton, int mouseEvent,
   case MOUSE_RIGHT_BUTTON:
     switch (mouseEvent) {
     case MOUSE_PRESS:;
-      Vector2 mousePos = GetMousePosition();
+      Vector2 mousePos = editordata->clampedMousePos;
       float distance =
           getVectorDistance(mousePos, point1); // distance to the center
                                                // distance to radius
@@ -151,7 +152,7 @@ void circle_mouse_handler(int mouseButton, int mouseEvent,
 
     case MOUSE_DRAG:
       if (editPoint != NULL) {
-        *editPoint = GetMousePosition();
+        *editPoint = editordata->clampedMousePos;
         ClearBackground(WHITE);
         // if editing the radius, recalculate it
         if (editPoint == &point2) {
@@ -174,9 +175,9 @@ void circle_mouse_handler(int mouseButton, int mouseEvent,
 
 void polygon_key_handler(int key, pixelBuffer *buffer, EditorData *editordata) {
 }
-void polygon_mouse_handler(int mouseButton, int mouseEvent,
-                           pixelBuffer *buffer) {}
+void polygon_mouse_handler(int mouseButton, int mouseEvent, pixelBuffer *buffer,
+                           EditorData *editordata) {}
 
 void square_key_handler(int key, pixelBuffer *buffer, EditorData *editordata) {}
-void square_mouse_handler(int mouseButton, int mouseEvent,
-                          pixelBuffer *buffer) {}
+void square_mouse_handler(int mouseButton, int mouseEvent, pixelBuffer *buffer,
+                          EditorData *editordata) {}
