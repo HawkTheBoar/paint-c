@@ -43,7 +43,8 @@ void line_key_handler(int key, pixelBuffer *buffer, EditorData *editordata) {
   case KEY_ENTER:
     if (isPointValid(point1) && isPointValid(point2)) {
       ClearBackground(WHITE);
-      drawLine(&point1, &point2, &BLACK, pixelBuffer_setPixel, buffer);
+      drawLine(&point1, &point2, &BLACK, editordata->size, pixelBuffer_setPixel,
+               buffer);
       invalidatePoint(&point1);
       invalidatePoint(&point2);
     }
@@ -67,12 +68,12 @@ void line_mouse_handler(int mouseButton, int mouseEvent, pixelBuffer *buffer,
     case MOUSE_DRAG:
       point2 = editordata->clampedMousePos;
       ClearBackground(WHITE);
-      drawLine(&point1, &point2, editColor, drawpixel, NULL);
+      drawLine(&point1, &point2, editColor, editordata->size, drawpixel, NULL);
       break;
 
     case MOUSE_RELEASE:
       ClearBackground(WHITE);
-      drawLine(&point1, &point2, editColor, drawpixel, NULL);
+      drawLine(&point1, &point2, editColor, editordata->size, drawpixel, NULL);
       markPoints((Vector2[]){point1, point2}, 2);
       break;
     }
@@ -94,14 +95,15 @@ void line_mouse_handler(int mouseButton, int mouseEvent, pixelBuffer *buffer,
       if (editPoint != NULL) {
         *editPoint = editordata->clampedMousePos;
         ClearBackground(WHITE);
-        drawLine(&point1, &point2, editColor, drawpixel, NULL);
+        drawLine(&point1, &point2, editColor, editordata->size, drawpixel,
+                 NULL);
       }
       break;
 
     case MOUSE_RELEASE:
       editPoint = NULL;
       ClearBackground(WHITE);
-      drawLine(&point1, &point2, editColor, drawpixel, NULL);
+      drawLine(&point1, &point2, editColor, editordata->size, drawpixel, NULL);
       markPoints((Vector2[]){point1, point2}, 2);
       break;
     }

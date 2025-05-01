@@ -14,7 +14,7 @@ void drawCircle(const Vector2 *center, int radius, const Color *c,
  * @param draw_pixel Function pointer to plot a pixel at (x,y) with color c
  */
 void drawLine(const Vector2 *point1, const Vector2 *point2, const Color *c,
-              drawPixel_func drawPixel, void *ctx);
+              int line_width, drawPixel_func drawPixel, void *ctx);
 void drawPolygon(const Vector2 *points, size_t count, const Color *c,
                  drawPixel_func drawPixel, void *ctx);
 void drawSquare(const Vector2 *start, const Vector2 *end, const Color *c,
