@@ -1,11 +1,9 @@
-#include "algorithms/algorithms.h"
 #include "definitions.h"
 #include "editordata.h"
 #include "input-handling/handle-input.h"
 #include "pixelBuffer/pixelBuffer.h"
 #include "raylib.h"
 #include "utils/utils.h"
-#include <stdio.h>
 int main() {
 
   InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE);
@@ -13,21 +11,20 @@ int main() {
   SetTargetFPS(60);
 
   pixelBuffer *buffer = pixelBuffer_create();
-  // Set the background to be White at the start.
-  BeginDrawing();
+  // Set the background to be White at the start.BeginDrawing();
   ClearBackground(WHITE);
   EndDrawing();
   // Main game loop
   Texture2D bufferTexture;
-  EditorData editorData = {BLACK, 0, (Vector2){0, 0}};
-  char text[100];
+  EditorData editorData = {BLACK, 0, (Vector2){0, 0}, false, 5};
   while (!WindowShouldClose()) // Detect window close button or ESC key
   {
+    // normalize the mousePosition
     Vector2 mousePos = GetMousePosition();
     editorData.clampedMousePos =
-        (Vector2){clamp(mousePos.x, 0, SCREEN_HEIGHT),
-                  clamp(mousePos.y, 0, SCREEN_HEIGHT - 100)};
-    // Update the bufferTexture if changed
+        (Vector2){clamp(mousePos.x, 0, PIXELBUFFER_WIDTH),
+                  clamp(mousePos.y, 0, PIXELBUFFER_HEIGHT)};
+    // Update the bufferTexture if change
     if (buffer->hasChanged) {
       UnloadTexture(bufferTexture);
       Image bufferImage = {.data = buffer->mainBuffer,
@@ -41,9 +38,6 @@ int main() {
 
     // Draw
     BeginDrawing();
-    sprintf(text, "x: %f y: %f", editorData.clampedMousePos.x,
-            editorData.clampedMousePos.y);
-    DrawText(text, 25, 25, 20, BLACK);
     handle_input(buffer, &editorData);
     DrawTexture(bufferTexture, 0, 0, WHITE);
     // You can add more drawing here

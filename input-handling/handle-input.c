@@ -3,6 +3,7 @@
 #include "input-handling/handlers.h"
 #include "pixelBuffer/pixelBuffer.h"
 #include "raylib.h"
+#include "stdio.h"
 typedef void (*key_handler_func)(int key, pixelBuffer *buffer,
                                  EditorData *editordata);
 typedef void (*mouse_handler_func)(int mouseButton, int mouseEvent,
@@ -15,19 +16,34 @@ typedef struct {
 key_handler_func key_handler;
 mouse_handler_func mouse_handler;
 
-handler handlers[] = {
-    {line_key_handler, line_mouse_handler},
-    {circle_key_handler, circle_mouse_handler},
-    {polygon_key_handler, polygon_mouse_handler},
-    {square_key_handler, square_mouse_handler},
-};
+handler handlers[] = {{line_key_handler, line_mouse_handler},
+                      {circle_key_handler, circle_mouse_handler},
+                      {polygon_key_handler, polygon_mouse_handler},
+                      {square_key_handler, square_mouse_handler},
+                      {eraser_key_handler, eraser_mouse_handler},
+                      {filler_key_handler, filler_mouse_handler}};
 void handle_input(pixelBuffer *pixelBuffer, EditorData *editordata) {
   int key = GetKeyPressed();
   key_handler = handlers[editordata->currentInputHandler].key_handler;
   mouse_handler = handlers[editordata->currentInputHandler].mouse_handler;
   // key overrides for all input
-  if (key == KEY_C) {
+  int handler_count = sizeof(handlers) / sizeof(handler) - 1;
+  switch (key) {
+  case KEY_C:
     pixelBuffer_clear(pixelBuffer);
+    ClearBackground(WHITE);
+    return;
+  case KEY_ONE:
+    if (editordata->currentInputHandler + 1 > handler_count)
+      return;
+    switch_handler(editordata, editordata->currentInputHandler + 1);
+    printf("CURRENT HANDLER: %d\n", editordata->currentInputHandler);
+    return;
+  case KEY_TWO:
+    if (editordata->currentInputHandler - 1 < 0)
+      return;
+    switch_handler(editordata, editordata->currentInputHandler - 1);
+    printf("CURRENT HANDLER: %d\n", editordata->currentInputHandler);
     return;
   }
   // Handle key input
@@ -46,5 +62,7 @@ void handle_input(pixelBuffer *pixelBuffer, EditorData *editordata) {
     mouse_handler(MOUSE_LEFT_BUTTON, MOUSE_DRAG, pixelBuffer, editordata);
   } else if (IsMouseButtonDown(MOUSE_RIGHT_BUTTON)) {
     mouse_handler(MOUSE_RIGHT_BUTTON, MOUSE_DRAG, pixelBuffer, editordata);
+  } else {
+    mouse_handler(MOUSE_LEFT_BUTTON, MOUSE_IDLE, pixelBuffer, editordata);
   }
 }
