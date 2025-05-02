@@ -1,7 +1,13 @@
 #include "algorithms.h"
+#include "definitions.h"
+#include "math.h"
 #include "pixelBuffer/pixelBuffer.h"
+#include "utils/utils.h"
 #include <raylib.h>
 #include <stdlib.h>
+#ifndef M_PI
+#define M_PI 3.14159265358979323846 // Fallback definition
+#endif
 /**
  * Draws a circle using the Midpoint Circle Algorithm (Bresenham's Circle
  * Algorithm)
@@ -45,15 +51,16 @@ void drawCircle(const Vector2 *center, int radius, const Color *c,
   }
 }
 #ifndef DASH_LENGTH
-#define DASH_LENGTH 0
+#define DASH_LENGTH 5
 #endif
 
 #ifndef GAP_LENGTH
-#define GAP_LENGTH 0
+#define GAP_LENGTH 5
 #endif
 
 void drawLine(const Vector2 *point, const Vector2 *point2, const Color *c,
-              int line_width, drawPixel_func draw_pixel, void *ctx) {
+              int line_width, int isDotted, drawPixel_func draw_pixel,
+              void *ctx) {
   int x1 = point->x;
   int y1 = point->y;
   int x2 = point2->x;
@@ -70,7 +77,7 @@ void drawLine(const Vector2 *point, const Vector2 *point2, const Color *c,
 
   int total_dash = DASH_LENGTH + GAP_LENGTH;
   int dash_counter = 0;
-  bool use_dash = total_dash > 0;
+  bool use_dash = isDotted;
 
   line_width = line_width < 1 ? 1 : line_width;
 
@@ -119,16 +126,60 @@ void drawLine(const Vector2 *point, const Vector2 *point2, const Color *c,
 }
 void drawPolygon(const Vector2 *points, size_t count, const Color *c,
                  drawPixel_func drawPixel, void *ctx) {
-  if (count < 1 || !arePointsValid(points, count))
+  if (count < 1)
     return;
   for (size_t i = 1; i < count; i++) {
-    drawLine(points + i, points + i - 1, c, 1, drawPixel, ctx);
+    drawLine(points + i, points + i - 1, c, 1, 0, drawPixel, ctx);
   }
-  drawLine(&points[0], &points[count - 1], c, 1, drawPixel, ctx);
+  drawLine(&points[0], &points[count - 1], c, 1, 0, drawPixel, ctx);
 }
 void drawSquare(const Vector2 *start, const Vector2 *end, const Color *c,
                 drawPixel_func drawPixel, void *ctx) {
   Vector2 point1 = {start->x, end->y};
   Vector2 point3 = {end->x, start->y};
   drawPolygon((Vector2[]){point1, *end, point3, *start}, 4, c, drawPixel, ctx);
+}
+Vector2 snapTo(Vector2 p1, Vector2 p2) {
+  // Calculate the vector from p1 to p2
+  Vector2 delta = {p2.x - p1.x, p2.y - p1.y};
+
+  // Calculate the angle in radians (-π to π)
+  float angle = atan2f(delta.y, delta.x);
+
+  // Snap to nearest 45 degrees (π/4 radians)
+  float snapped_angle = roundf(angle / (M_PI / 4)) * (M_PI / 4);
+
+  // Calculate the maximum possible length that stays within bounds
+  float max_length_x = (delta.x >= 0) ? (PIXELBUFFER_WIDTH - p1.x) : p1.x;
+  float max_length_y = (delta.y >= 0) ? (PIXELBUFFER_HEIGHT - p1.y) : p1.y;
+
+  // The maximum length we can use while staying within bounds
+  float cos_angle = cosf(snapped_angle);
+  float sin_angle = sinf(snapped_angle);
+
+  float max_length = INFINITY;
+
+  if (fabsf(cos_angle) > 0.0001f) {
+    float max_x = max_length_x / fabsf(cos_angle);
+    max_length = fminf(max_length, max_x);
+  }
+
+  if (fabsf(sin_angle) > 0.0001f) {
+    float max_y = max_length_y / fabsf(sin_angle);
+    max_length = fminf(max_length, max_y);
+  }
+
+  // Use the original length or the maximum allowed length, whichever is smaller
+  float original_length = sqrtf(delta.x * delta.x + delta.y * delta.y);
+  float length = fminf(original_length, max_length);
+
+  // Create new snapped vector
+  Vector2 snapped_point = {p1.x + cosf(snapped_angle) * length,
+                           p1.y + sinf(snapped_angle) * length};
+
+  // Ensure we're exactly at the border if we're at the limit
+  snapped_point.x = clamp(snapped_point.x, 0, PIXELBUFFER_WIDTH);
+  snapped_point.y = clamp(snapped_point.y, 0, PIXELBUFFER_HEIGHT);
+
+  return snapped_point;
 }

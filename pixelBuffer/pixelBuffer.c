@@ -3,8 +3,8 @@
 #include "raylib.h"
 #include <stdlib.h>
 int isPointValid(Vector2 point) {
-  return point.x >= 0 && point.y >= 0 && point.x < SCREEN_WIDTH &&
-         point.y < SCREEN_HEIGHT;
+  return point.x >= 0 && point.y >= 0 && point.x < PIXELBUFFER_WIDTH &&
+         point.y < PIXELBUFFER_HEIGHT;
 }
 int arePointsValid(const Vector2 *points, size_t count) {
   for (size_t i = 0; i < count; i++) {

@@ -7,4 +7,5 @@
 #define POLYGON_BUFFER_SIZE 100
 #define SCREEN_TITLE "Paint C"
 #define BG_COLOR WHITE
+#define MAX_EDITOR_SIZE 50
 #endif // !DEFINITIONS_H

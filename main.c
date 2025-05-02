@@ -1,6 +1,8 @@
+#include "button/button.h"
 #include "definitions.h"
 #include "editordata.h"
 #include "input-handling/handle-input.h"
+#include "input-handling/handle-ui.h"
 #include "pixelBuffer/pixelBuffer.h"
 #include "raylib.h"
 #include "utils/utils.h"
@@ -11,12 +13,15 @@ int main() {
   SetTargetFPS(60);
 
   pixelBuffer *buffer = pixelBuffer_create();
-  // Set the background to be White at the start.BeginDrawing();
+  // Set the background to be White at the start.
+
+  BeginDrawing();
   ClearBackground(WHITE);
   EndDrawing();
   // Main game loop
   Texture2D bufferTexture;
-  EditorData editorData = {BLACK, 0, (Vector2){0, 0}, false, 5};
+  EditorData editorData = {BLACK, 0, (Vector2){0, 0}, false, 0, 5};
+  handle_ui_init();
   while (!WindowShouldClose()) // Detect window close button or ESC key
   {
     // normalize the mousePosition
@@ -38,6 +43,7 @@ int main() {
 
     // Draw
     BeginDrawing();
+    handle_ui(&editorData);
     handle_input(buffer, &editorData);
     DrawTexture(bufferTexture, 0, 0, WHITE);
     // You can add more drawing here
@@ -45,6 +51,7 @@ int main() {
   }
 
   // Cleanup
+  handle_ui_destroy();
   pixelBuffer_destroy(buffer);
   CloseWindow();
   return 0;

@@ -9,7 +9,7 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
-#define drawpixel (drawPixel_func) DrawPixel
+#define drawpixel (drawPixel_func) draw_pixel
 static Vector2 point1 = {-1, -1}, point2 = {-1, -1};
 static void invalidatePoint(Vector2 *p) {
   p->x = -1;
@@ -17,12 +17,12 @@ static void invalidatePoint(Vector2 *p) {
 };
 static int editToleration = 10;
 static Vector2 *editPoint;
-static Color *editColor = &GREEN;
 static Color *editPointColor = &RED;
 static int editPointRadius = 5;
 static float radius;
 static Vector2 polygonPoints[POLYGON_BUFFER_SIZE];
 static size_t polygonPointCount = 0;
+void draw_pixel(int x, int y, Color c, void *ctx) { DrawPixel(x, y, c); }
 void switch_handler(EditorData *editordata, int nextHandler) {
   // invalidate all points set up to this point
   editPoint = NULL;
@@ -43,8 +43,8 @@ void line_key_handler(int key, pixelBuffer *buffer, EditorData *editordata) {
   case KEY_ENTER:
     if (isPointValid(point1) && isPointValid(point2)) {
       ClearBackground(WHITE);
-      drawLine(&point1, &point2, &BLACK, editordata->size, pixelBuffer_setPixel,
-               buffer);
+      drawLine(&point1, &point2, &editordata->editorColor, editordata->size,
+               editordata->isDotted, pixelBuffer_setPixel, buffer);
       invalidatePoint(&point1);
       invalidatePoint(&point2);
     }
@@ -67,13 +67,17 @@ void line_mouse_handler(int mouseButton, int mouseEvent, pixelBuffer *buffer,
 
     case MOUSE_DRAG:
       point2 = editordata->clampedMousePos;
+      if (editordata->shouldSnap)
+        point2 = snapTo(point1, point2);
       ClearBackground(WHITE);
-      drawLine(&point1, &point2, editColor, editordata->size, drawpixel, NULL);
+      drawLine(&point1, &point2, &editordata->editorColor, editordata->size,
+               editordata->isDotted, drawpixel, NULL);
       break;
 
     case MOUSE_RELEASE:
       ClearBackground(WHITE);
-      drawLine(&point1, &point2, editColor, editordata->size, drawpixel, NULL);
+      drawLine(&point1, &point2, &editordata->editorColor, editordata->size,
+               editordata->isDotted, drawpixel, NULL);
       markPoints((Vector2[]){point1, point2}, 2);
       break;
     }
@@ -94,16 +98,25 @@ void line_mouse_handler(int mouseButton, int mouseEvent, pixelBuffer *buffer,
     case MOUSE_DRAG:
       if (editPoint != NULL) {
         *editPoint = editordata->clampedMousePos;
+        if (editordata->shouldSnap) {
+
+          if (editPoint == &point1) {
+            *editPoint = snapTo(point2, *editPoint);
+          } else {
+            *editPoint = snapTo(point1, *editPoint);
+          }
+        }
         ClearBackground(WHITE);
-        drawLine(&point1, &point2, editColor, editordata->size, drawpixel,
-                 NULL);
+        drawLine(&point1, &point2, &editordata->editorColor, editordata->size,
+                 editordata->isDotted, drawpixel, NULL);
       }
       break;
 
     case MOUSE_RELEASE:
       editPoint = NULL;
       ClearBackground(WHITE);
-      drawLine(&point1, &point2, editColor, editordata->size, drawpixel, NULL);
+      drawLine(&point1, &point2, &editordata->editorColor, editordata->size,
+               editordata->isDotted, drawpixel, NULL);
       markPoints((Vector2[]){point1, point2}, 2);
       break;
     }
@@ -118,7 +131,8 @@ void circle_key_handler(int key, pixelBuffer *buffer, EditorData *editordata) {
   case KEY_ENTER:
     if (isPointValid(point1) && isPointValid(point2)) {
       ClearBackground(WHITE);
-      drawCircle(&point1, radius, &BLACK, pixelBuffer_setPixel, buffer);
+      drawCircle(&point1, radius, &editordata->editorColor,
+                 pixelBuffer_setPixel, buffer);
       invalidatePoint(&point1);
       invalidatePoint(&point2);
     }
@@ -143,12 +157,12 @@ void circle_mouse_handler(int mouseButton, int mouseEvent, pixelBuffer *buffer,
       point2 = editordata->clampedMousePos;
       radius = getVectorDistance(point1, point2);
       ClearBackground(WHITE);
-      drawCircle(&point1, radius, editColor, drawpixel, NULL);
+      drawCircle(&point1, radius, &editordata->editorColor, drawpixel, NULL);
       break;
 
     case MOUSE_RELEASE:
       ClearBackground(WHITE);
-      drawCircle(&point1, radius, editColor, drawpixel, NULL);
+      drawCircle(&point1, radius, &editordata->editorColor, drawpixel, NULL);
       markPoints((Vector2[]){point1}, 1);
       break;
     }
@@ -176,14 +190,14 @@ void circle_mouse_handler(int mouseButton, int mouseEvent, pixelBuffer *buffer,
         if (editPoint == &point2) {
           radius = getVectorDistance(point1, point2);
         }
-        drawCircle(&point1, radius, editColor, drawpixel, NULL);
+        drawCircle(&point1, radius, &editordata->editorColor, drawpixel, NULL);
       }
       break;
 
     case MOUSE_RELEASE:
       editPoint = NULL;
       ClearBackground(WHITE);
-      drawCircle(&point1, radius, editColor, drawpixel, NULL);
+      drawCircle(&point1, radius, &editordata->editorColor, drawpixel, NULL);
       markPoints((Vector2[]){point1}, 1);
       break;
     }
@@ -335,14 +349,14 @@ void square_mouse_handler(int mouseButton, int mouseEvent, pixelBuffer *buffer,
       if (editPoint != NULL) {
         *editPoint = editordata->clampedMousePos;
         ClearBackground(WHITE);
-        drawSquare(&point1, &point2, editColor, drawpixel, NULL);
+        drawSquare(&point1, &point2, &editordata->editorColor, drawpixel, NULL);
       }
       break;
 
     case MOUSE_RELEASE:
       editPoint = NULL;
       ClearBackground(WHITE);
-      drawSquare(&point1, &point2, editColor, drawpixel, NULL);
+      drawSquare(&point1, &point2, &editordata->editorColor, drawpixel, NULL);
       markPoints((Vector2[]){point1, point2}, 2);
       break;
     }
@@ -367,8 +381,8 @@ void eraser_key_handler(int key, pixelBuffer *buffer, EditorData *editordata) {
 }
 static void fill(int startX, int startY, pixelBuffer *buffer,
                  EditorData *editordata) {
-  if (startX < 0 || startX >= SCREEN_WIDTH || startY < 0 ||
-      startY >= SCREEN_HEIGHT)
+  if (startX < 0 || startX >= PIXELBUFFER_WIDTH || startY < 0 ||
+      startY >= PIXELBUFFER_HEIGHT)
     return;
 
   Color targetColor = (Color){0, 0, 0, 0};
@@ -379,7 +393,8 @@ static void fill(int startX, int startY, pixelBuffer *buffer,
       !ColorIsEqual(buffer->mainBuffer[startY][startX], targetColor))
     return;
 
-  Vector2 *queue = malloc(SCREEN_WIDTH * SCREEN_HEIGHT * sizeof(Vector2));
+  Vector2 *queue =
+      malloc(PIXELBUFFER_WIDTH * PIXELBUFFER_HEIGHT * sizeof(Vector2));
   int front = 0, rear = 0;
 
   // Enqueue starting point and mark it immediately
@@ -398,7 +413,8 @@ static void fill(int startX, int startY, pixelBuffer *buffer,
       int newX = current.x + dx[i];
       int newY = current.y + dy[i];
 
-      if (newX < 0 || newX >= SCREEN_WIDTH || newY < 0 || newY >= SCREEN_HEIGHT)
+      if (newX < 0 || newX >= PIXELBUFFER_WIDTH || newY < 0 ||
+          newY >= PIXELBUFFER_HEIGHT)
         continue;
 
       if (ColorIsEqual(buffer->mainBuffer[newY][newX], targetColor)) {

@@ -1,4 +1,5 @@
 #include "input-handling/handle-input.h"
+#include "definitions.h"
 #include "editordata.h"
 #include "input-handling/handlers.h"
 #include "pixelBuffer/pixelBuffer.h"
@@ -29,6 +30,9 @@ void handle_input(pixelBuffer *pixelBuffer, EditorData *editordata) {
   // key overrides for all input
   int handler_count = sizeof(handlers) / sizeof(handler) - 1;
   switch (key) {
+  case KEY_SPACE:
+    editordata->shouldSnap = !editordata->shouldSnap;
+    return;
   case KEY_C:
     pixelBuffer_clear(pixelBuffer);
     ClearBackground(WHITE);
@@ -44,6 +48,16 @@ void handle_input(pixelBuffer *pixelBuffer, EditorData *editordata) {
       return;
     switch_handler(editordata, editordata->currentInputHandler - 1);
     printf("CURRENT HANDLER: %d\n", editordata->currentInputHandler);
+    return;
+  case KEY_P:
+    if (editordata->size + 1 > MAX_EDITOR_SIZE)
+      return;
+    editordata->size += 1;
+    return;
+  case KEY_M:
+    if (editordata->size - 1 <= 0)
+      return;
+    editordata->size -= 1;
     return;
   }
   // Handle key input
