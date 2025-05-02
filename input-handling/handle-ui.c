@@ -1,5 +1,6 @@
 #include "input-handling/handle-ui.h"
 #include "button/button.h"
+#include "definitions.h"
 #include "editordata.h"
 #include "input-handling/handlers.h"
 #include <string.h>
@@ -11,6 +12,8 @@ typedef enum {
   BUTTON_ERASER,
   BUTTON_POLYGON,
   BUTTON_BUCKET,
+  BUTTON_MINUS,
+  BUTTON_PLUS,
   NUM_BUTTONS // (Optional: Helps track total buttons)
 } ButtonID;
 Button *all_buttons[NUM_BUTTONS]; // Global array
@@ -29,7 +32,9 @@ void handle_ui_init() {
       button_create(-1, -1, "sprites/polygon.png", "polygon");
   all_buttons[BUTTON_BUCKET] =
       button_create(-1, -1, "sprites/bucket.png", "bucket");
-
+  all_buttons[BUTTON_MINUS] =
+      button_create(-1, -1, "sprites/minus.png", "minus");
+  all_buttons[BUTTON_PLUS] = button_create(-1, -1, "sprites/plus.png", "plus");
   // Set positions
   const int totalWidth = (32 + 2) * 10 - 2;
   const int startX = (800 - totalWidth) / 2;
@@ -70,6 +75,16 @@ void handle_ui(EditorData *editordata) {
         break;
       case BUTTON_BUCKET:
         switch_handler(editordata, 5);
+        break;
+      case BUTTON_MINUS:
+        if (editordata->size + 1 > MAX_EDITOR_SIZE)
+          break;
+        editordata->size += 1;
+        break;
+      case BUTTON_PLUS:
+        if (editordata->size - 1 <= 0)
+          break;
+        editordata->size -= 1;
         break;
       default:
         break;

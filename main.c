@@ -41,11 +41,11 @@ int main() {
       buffer->hasChanged = 0;
     }
 
-    // Draw
     BeginDrawing();
+    // Draw
+    DrawTexture(bufferTexture, 0, 0, WHITE);
     handle_ui(&editorData);
     handle_input(buffer, &editorData);
-    DrawTexture(bufferTexture, 0, 0, WHITE);
     // You can add more drawing here
     EndDrawing();
   }

@@ -385,7 +385,7 @@ static void fill(int startX, int startY, pixelBuffer *buffer,
       startY >= PIXELBUFFER_HEIGHT)
     return;
 
-  Color targetColor = (Color){0, 0, 0, 0};
+  Color targetColor = buffer->mainBuffer[startY][startX];
   Color fillColor = editordata->editorColor;
 
   // Early exit if starting pixel is already filled or not the target
