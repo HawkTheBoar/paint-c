@@ -20,12 +20,13 @@ int main() {
   EndDrawing();
   // Main game loop
   Texture2D bufferTexture;
-  EditorData editorData = {BLACK, 0, (Vector2){0, 0}, false, 0, 5};
+  EditorData editorData = {BLACK, 0, (Vector2){0, 0}, false, 0, 0, 5};
   handle_ui_init();
   while (!WindowShouldClose()) // Detect window close button or ESC key
   {
     // normalize the mousePosition
     Vector2 mousePos = GetMousePosition();
+    editorData.isOutOfBounds = !isPointValid(mousePos);
     editorData.clampedMousePos =
         (Vector2){clamp(mousePos.x, 0, PIXELBUFFER_WIDTH),
                   clamp(mousePos.y, 0, PIXELBUFFER_HEIGHT)};

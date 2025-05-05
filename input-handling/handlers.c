@@ -220,6 +220,7 @@ void polygon_key_handler(int key, pixelBuffer *buffer, EditorData *editordata) {
     break;
   }
 }
+int pointAdded = 1;
 void polygon_mouse_handler(int mouseButton, int mouseEvent, pixelBuffer *buffer,
                            EditorData *editordata) {
   if (polygonPointCount > POLYGON_BUFFER_SIZE)
@@ -228,6 +229,11 @@ void polygon_mouse_handler(int mouseButton, int mouseEvent, pixelBuffer *buffer,
   case MOUSE_LEFT_BUTTON:
     switch (mouseEvent) {
     case MOUSE_PRESS:
+      if (editordata->isOutOfBounds) {
+        pointAdded = 0;
+        break;
+      }
+      pointAdded = 1;
       polygonPointCount++;
       polygonPoints[polygonPointCount - 1] = editordata->clampedMousePos;
       ClearBackground(WHITE);
@@ -235,12 +241,18 @@ void polygon_mouse_handler(int mouseButton, int mouseEvent, pixelBuffer *buffer,
                   drawpixel, NULL);
       break;
     case MOUSE_DRAG:
+      if (!pointAdded) {
+        break;
+      }
       polygonPoints[polygonPointCount - 1] = editordata->clampedMousePos;
       ClearBackground(WHITE);
       drawPolygon(polygonPoints, polygonPointCount, &editordata->editorColor,
                   drawpixel, NULL);
       break;
     case MOUSE_RELEASE:
+      if (!pointAdded) {
+        break;
+      }
       polygonPoints[polygonPointCount - 1] = editordata->clampedMousePos;
       ClearBackground(WHITE);
       drawPolygon(polygonPoints, polygonPointCount, &editordata->editorColor,

@@ -8,6 +8,7 @@ typedef struct {
   Vector2 clampedMousePos;
   int shouldSnap;
   int isDotted;
+  int isOutOfBounds;
   int size;
 } EditorData;
 #endif // !EDITORDATA_H
